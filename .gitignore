@@ -26,3 +26,7 @@ hs_err_pid*
 /Client/nbproject/private/
 /Serveur/nbproject/private/
 /Serveur/build/
+
+# file: ~/.gitignore_global
+.DS_Store
+.idea
