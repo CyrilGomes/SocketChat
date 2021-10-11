@@ -30,3 +30,12 @@ hs_err_pid*
 # file: ~/.gitignore_global
 .DS_Store
 .idea
+
+**/nbproject/private/
+**/nbproject/Makefile-*.mk
+**/nbproject/Package-*.bash
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
