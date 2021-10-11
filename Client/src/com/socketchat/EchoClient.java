@@ -32,7 +32,7 @@ public class EchoClient {
 
         try {
       	    // creation socket ==> connexion
-      	    echoSocket = new Socket(args[0],new Integer(args[1]).intValue());
+      	    echoSocket = new Socket(args[0],Integer.parseInt(args[1]));
 	    socIn = new BufferedReader(
 	    		          new InputStreamReader(echoSocket.getInputStream()));    
 	    socOut= new PrintStream(echoSocket.getOutputStream());
