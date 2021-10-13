@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,7 +37,8 @@ public class EchoClientGUI extends javax.swing.JFrame {
     EmissionThread emissionThread;
     RecieveThread recieveThread;
 
-    PrintWriter test;
+    BufferedReader socIn;
+    PrintWriter socOut;
     GridBagConstraints chatPanelConstraints;
     DefaultListModel modelListeMessages;
 
@@ -57,13 +59,13 @@ public class EchoClientGUI extends javax.swing.JFrame {
             System.exit(1);
         }
 
-        clientSocket = new Socket();
+
 
     }
 
     synchronized public void addMessage(String author, Date timestamp, String content) {
         java.awt.EventQueue.invokeLater(() -> {
-            modelListeMessages.addElement("(" + timestamp.toString() +") "+author+" - "+content);
+            modelListeMessages.addElement("(" + timestamp.toString() + ") " + author + " - " + content);
             repaint();
         });
     }
@@ -172,23 +174,31 @@ public class EchoClientGUI extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         String msg = jTextArea1.getText();
         System.out.println(msg);
-        Message message = new Message(msg,nomUtilisateur,new Date());
+        Message message = new Message(msg, nomUtilisateur, new Date());
         String serializedMessage = new Gson().toJson(message);
-        test.println(serializedMessage);
-        test.flush();
+        emissionThread = new EmissionThread(socOut, serializedMessage);
+        emissionThread.start();
         System.out.println(serializedMessage);
 
         addMessage(nomUtilisateur, new Date(), msg);
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+    private void closeEverything() {
         try {
+            recieveThread.interrupt();
+            socOut.close();
+            socIn.close();
             if (clientSocket != null) {
                 clientSocket.close();
             }
+
         } catch (IOException ex) {
-            Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+    }
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        closeEverything();
     }//GEN-LAST:event_formWindowClosing
 
     private void btConnexionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btConnexionActionPerformed
@@ -206,6 +216,9 @@ public class EchoClientGUI extends javax.swing.JFrame {
             int res = JOptionPane.showConfirmDialog(parent, panelDialog, "Entrez les informations de connexion", JOptionPane.OK_CANCEL_OPTION);
             if (res == JOptionPane.OK_OPTION) {
                 try {
+                    if(clientSocket == null || (clientSocket != null && clientSocket.isClosed())){
+                        clientSocket = new Socket();
+                    }
                     clientSocket.connect(new InetSocketAddress(fieldAdresse.getText(), Integer.parseInt(fieldPort.getText())));
                     JOptionPane.showMessageDialog(parent, "Connexion établie", "Réussite", JOptionPane.INFORMATION_MESSAGE);
                 } catch (IOException ex) {
@@ -215,12 +228,12 @@ public class EchoClientGUI extends javax.swing.JFrame {
             }
 
             try {
-                test = new PrintWriter(clientSocket.getOutputStream());
+                socOut = new PrintWriter(clientSocket.getOutputStream());
 
             } catch (IOException ex) {
                 Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
             }
-            BufferedReader socIn;
+
             try {
                 socIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 recieveThread = new RecieveThread(socIn, this);
@@ -245,6 +258,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
             } else {
                 JOptionPane.showMessageDialog(parent, "Vous n'êtes pas connecté...", "Erreur", JOptionPane.ERROR_MESSAGE);
             }
+            closeEverything();
         }).start();
     }//GEN-LAST:event_btDeconnexionActionPerformed
 

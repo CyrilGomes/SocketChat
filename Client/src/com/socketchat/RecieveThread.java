@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Properties;
 import java.util.Scanner;
@@ -46,22 +47,24 @@ public class RecieveThread extends Thread {
     public void run() {
 
         String line;
-        while (true) {
+        while (!this.isInterrupted()) {
             try {
+
                 line = socIn.readLine();
 
                 if (line.isEmpty()) {
                     break;
                 }
-                Gson gson =new Gson();
+                Gson gson = new Gson();
                 System.out.println(line);
                 JsonObject convertedObject = new Gson().fromJson(line, JsonObject.class);
 
                 Message message = gson.fromJson(convertedObject.get("payload"), Message.class);
                 clientGui.addMessage(message.author, message.date, message.content);
             } catch (IOException ex) {
-                Logger.getLogger(RecieveThread.class.getName()).log(Level.SEVERE, null, ex);
-            }
+                //Logger.getLogger(RecieveThread.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+
         }
     }
 
