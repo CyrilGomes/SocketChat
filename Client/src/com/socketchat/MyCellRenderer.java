@@ -7,6 +7,9 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
+/*
+    From StackOverflow: https://stackoverflow.com/questions/7306295/swing-jlist-with-multiline-text-and-dynamic-height
+*/
 public class MyCellRenderer extends DefaultListCellRenderer
     {
         final JPanel p = new JPanel(new BorderLayout());
