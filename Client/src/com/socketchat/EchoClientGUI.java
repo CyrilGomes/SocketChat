@@ -166,6 +166,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
             test = new PrintWriter(clientSocket.getOutputStream());
             test.write(msg);
             test.flush();
+            test.close();
         } catch (IOException ex) {
             Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
