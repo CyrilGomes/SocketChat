@@ -11,7 +11,9 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,9 +31,11 @@ import javax.swing.JTextField;
  * @author creep
  */
 public class EchoClientGUI extends javax.swing.JFrame {
-
     String nomUtilisateur;
-    Socket echoSocket;
+    Socket clientSocket;
+    EmissionThread emissionThread;
+    RecieveThread recieveThread;
+    
     GridBagConstraints chatPanelConstraints;
     DefaultListModel modelListeMessages;
 
@@ -49,6 +53,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
         if (nomUtilisateur == null) {
             System.exit(1);
         }
+        clientSocket = new Socket();
     }
 
     public void addMessage(String author, Date timestamp, String content) {
@@ -116,11 +121,6 @@ public class EchoClientGUI extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 0);
         getContentPane().add(jScrollPane3, gridBagConstraints);
 
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
         jScrollPane1.setViewportView(jList1);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -170,8 +170,8 @@ public class EchoClientGUI extends javax.swing.JFrame {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         try {
-            if (echoSocket != null) {
-                echoSocket.close();
+            if (clientSocket != null) {
+                clientSocket.close();
             }
         } catch (IOException ex) {
             Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -193,8 +193,9 @@ public class EchoClientGUI extends javax.swing.JFrame {
             int res = JOptionPane.showConfirmDialog(parent, panelDialog, "Entrez les informations de connexion", JOptionPane.OK_CANCEL_OPTION);
             if (res == JOptionPane.OK_OPTION) {
                 try {
-                    Socket clientSocket = new Socket(fieldAdresse.getText(), Integer.parseInt(fieldPort.getText()));
+                    clientSocket.connect(new InetSocketAddress(fieldAdresse.getText(), Integer.parseInt(fieldPort.getText())));
                 } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(parent, "Echec de connexion", "Erreur", JOptionPane.ERROR_MESSAGE);
                     Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
