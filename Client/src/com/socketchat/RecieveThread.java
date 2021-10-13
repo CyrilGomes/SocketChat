@@ -36,6 +36,16 @@ public class RecieveThread extends Thread {
         }
     }
 
+    RecieveThread(BufferedReader socIn) {
+
+        try {
+            this.socIn = socIn;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * receives a request from client then sends an echo to the client
      *
@@ -58,8 +68,4 @@ public class RecieveThread extends Thread {
         }
     }
 
-    public void close() throws IOException {
-        socIn.close();
-
-    }
 }

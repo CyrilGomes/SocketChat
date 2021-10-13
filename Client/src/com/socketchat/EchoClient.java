@@ -43,6 +43,7 @@ public class EchoClient {
             stdIn = new BufferedReader(new InputStreamReader(System.in));
             recieveThread = new RecieveThread(echoSocket);
             recieveThread.start();
+            
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host:" + args[0]);
             System.exit(1);
@@ -58,11 +59,11 @@ public class EchoClient {
             if (line.equals(".")) {
                 break;
             }
+            
             emissionThread = new EmissionThread(echoSocket, line);
             emissionThread.start();
 
         }
-        emissionThread.close();
         stdIn.close();
         echoSocket.close();
     }
