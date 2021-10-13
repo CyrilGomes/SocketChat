@@ -51,6 +51,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
         chatPanelConstraints.fill = GridBagConstraints.BOTH;
         modelListeMessages = new DefaultListModel();
         jList1.setModel(modelListeMessages);
+        jList1.setCellRenderer(new MyCellRenderer());
         nomUtilisateur = JOptionPane.showInputDialog(this, "Entrez un nom d'utilisateur", "Nom d'utilisateur", JOptionPane.QUESTION_MESSAGE);
         if (nomUtilisateur == null) {
             System.exit(1);
