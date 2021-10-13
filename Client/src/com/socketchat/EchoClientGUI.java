@@ -52,9 +52,11 @@ public class EchoClientGUI extends javax.swing.JFrame {
         clientSocket = new Socket();
     }
 
-    public void addMessage(String author, Date timestamp, String content) {
-        modelListeMessages.addElement("(" + new Date().toGMTString() + ") Utilisateur #1 - eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-        repaint();
+    synchronized public void addMessage(String author, Date timestamp, String content) {
+        java.awt.EventQueue.invokeLater(() -> {
+            modelListeMessages.addElement("(" + new Date().toGMTString() + ") Utilisateur #1 - eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+            repaint();
+        });
     }
 
     /**
@@ -199,6 +201,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
             if (res == JOptionPane.OK_OPTION) {
                 try {
                     clientSocket.connect(new InetSocketAddress(fieldAdresse.getText(), Integer.parseInt(fieldPort.getText())));
+                    JOptionPane.showMessageDialog(parent, "Connexion établie", "Réussite", JOptionPane.INFORMATION_MESSAGE);
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(parent, "Echec de connexion", "Erreur", JOptionPane.ERROR_MESSAGE);
                     Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -210,9 +213,10 @@ public class EchoClientGUI extends javax.swing.JFrame {
     private void btDeconnexionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btDeconnexionActionPerformed
         final JFrame parent = this;
         new Thread(() -> {
-            if (clientSocket.isClosed() || clientSocket != null) {
+            if (!clientSocket.isClosed() && clientSocket != null) {
                 try {
                     clientSocket.close();
+                    JOptionPane.showMessageDialog(parent, "Déconnexion réussie", "Déconnexion", JOptionPane.INFORMATION_MESSAGE);
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(parent, "Echec de déconnexion", "Erreur", JOptionPane.ERROR_MESSAGE);
                     Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
