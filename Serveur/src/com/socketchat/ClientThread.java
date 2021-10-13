@@ -6,8 +6,10 @@
  */
 package com.socketchat;
 
+import com.google.gson.Gson;
 import java.io.*;
 import java.net.*;
+import java.util.Date;
 
 public class ClientThread
         extends Thread {
@@ -33,6 +35,7 @@ public class ClientThread
             Boolean isRunning = true;
             while (isRunning) {
                 String line = socIn.readLine();
+                System.out.println("LLALALALA");
                 if(line == null){
                     socIn.close();
                     socOut.close();
@@ -42,7 +45,13 @@ public class ClientThread
                 }
                 else{
                     System.out.println(line);
-                    socOut.println(line);
+                    Message recievedMessage = new Gson().fromJson(line, Message.class );
+                    Message message = new Message(recievedMessage.content,"SERVEUR",new Date());
+                    Response response = new Response("501",message);
+                    
+                    String serializedResponse = new Gson().toJson(response);
+                    socOut.println(serializedResponse);
+                    
                 }
             }
         } catch (Exception e) {

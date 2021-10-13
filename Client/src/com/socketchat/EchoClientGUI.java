@@ -6,8 +6,11 @@
 package com.socketchat;
 
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.google.gson.Gson;
 import java.awt.GridBagConstraints;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -27,11 +30,13 @@ import javax.swing.JTextField;
  * @author creep
  */
 public class EchoClientGUI extends javax.swing.JFrame {
+
     String nomUtilisateur;
     Socket clientSocket;
     EmissionThread emissionThread;
     RecieveThread recieveThread;
 
+    PrintWriter test;
     GridBagConstraints chatPanelConstraints;
     DefaultListModel modelListeMessages;
 
@@ -40,6 +45,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
      */
     public EchoClientGUI() {
         initComponents();
+
         chatPanelConstraints = new GridBagConstraints();
         chatPanelConstraints.gridy = 0;
         chatPanelConstraints.fill = GridBagConstraints.BOTH;
@@ -49,12 +55,14 @@ public class EchoClientGUI extends javax.swing.JFrame {
         if (nomUtilisateur == null) {
             System.exit(1);
         }
+
         clientSocket = new Socket();
+
     }
 
     synchronized public void addMessage(String author, Date timestamp, String content) {
         java.awt.EventQueue.invokeLater(() -> {
-            modelListeMessages.addElement("(" + new Date().toGMTString() + ") Utilisateur #1 - eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+            modelListeMessages.addElement("(" + timestamp.toString() +") "+author+" - "+content);
             repaint();
         });
     }
@@ -163,16 +171,13 @@ public class EchoClientGUI extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         String msg = jTextArea1.getText();
         System.out.println(msg);
-        PrintWriter test;
-        try {
-            test = new PrintWriter(clientSocket.getOutputStream());
-            test.write(msg);
-            test.flush();
-            test.close();
-        } catch (IOException ex) {
-            Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        addMessage("", new Date(), "");
+        Message message = new Message(msg,nomUtilisateur,new Date());
+        String serializedMessage = new Gson().toJson(message);
+        test.println(serializedMessage);
+        test.flush();
+        System.out.println(serializedMessage);
+
+        addMessage(nomUtilisateur, new Date(), msg);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
@@ -207,6 +212,21 @@ public class EchoClientGUI extends javax.swing.JFrame {
                     Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+
+            try {
+                test = new PrintWriter(clientSocket.getOutputStream());
+
+            } catch (IOException ex) {
+                Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            BufferedReader socIn;
+            try {
+                socIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                recieveThread = new RecieveThread(socIn, this);
+                recieveThread.start();
+            } catch (IOException ex) {
+                Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }).start();
     }//GEN-LAST:event_btConnexionActionPerformed
 
@@ -221,8 +241,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(parent, "Echec de déconnexion", "Erreur", JOptionPane.ERROR_MESSAGE);
                     Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }
-            else{
+            } else {
                 JOptionPane.showMessageDialog(parent, "Vous n'êtes pas connecté...", "Erreur", JOptionPane.ERROR_MESSAGE);
             }
         }).start();

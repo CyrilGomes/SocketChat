@@ -13,4 +13,11 @@ import java.io.Serializable;
 public class Response {
     public String status;
     public Serializable payload;
+
+    public Response(String status, Serializable payload) {
+        this.status = status;
+        this.payload = payload;
+    }
+
+
 }

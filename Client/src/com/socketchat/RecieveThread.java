@@ -4,12 +4,16 @@
  */
 package com.socketchat;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Properties;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,26 +25,13 @@ public class RecieveThread extends Thread {
 
     private Socket clientSocket;
     private BufferedReader socIn = null;
+    EchoClientGUI clientGui;
 
-    RecieveThread(Socket s) {
-
-        this.clientSocket = s;
-
-        try {
-            // creation socket ==> connexion
-            socIn = new BufferedReader(
-                    new InputStreamReader(clientSocket.getInputStream()));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    RecieveThread(BufferedReader socIn) {
+    RecieveThread(BufferedReader socIn, EchoClientGUI clientGui) {
 
         try {
             this.socIn = socIn;
-
+            this.clientGui = clientGui;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -58,10 +49,16 @@ public class RecieveThread extends Thread {
         while (true) {
             try {
                 line = socIn.readLine();
+
                 if (line.isEmpty()) {
                     break;
                 }
-                EchoClient.recievedMessage(line);
+                Gson gson =new Gson();
+                System.out.println(line);
+                JsonObject convertedObject = new Gson().fromJson(line, JsonObject.class);
+
+                Message message = gson.fromJson(convertedObject.get("payload"), Message.class);
+                clientGui.addMessage(message.author, message.date, message.content);
             } catch (IOException ex) {
                 Logger.getLogger(RecieveThread.class.getName()).log(Level.SEVERE, null, ex);
             }

@@ -16,6 +16,12 @@ public class Message implements Serializable {
     public String author;
     public Date date;
 
+    public Message(String content, String author, Date date) {
+        this.content = content;
+        this.author = author;
+        this.date = date;
+    }
+
     public String getContent() {
         return content;
     }
@@ -37,12 +43,6 @@ public class Message implements Serializable {
     }
 
     public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public Message(String content, String author, Date date) {
-        this.content = content;
-        this.author = author;
         this.date = date;
     }
     

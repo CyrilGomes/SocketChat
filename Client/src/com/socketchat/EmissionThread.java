@@ -22,18 +22,6 @@ public class EmissionThread extends Thread {
     PrintStream socOut = null;
     String message;
 
-    EmissionThread(Socket s, String message) {
-
-        this.clientSocket = s;
-        this.message = message;
-
-        try {
-            socOut = new PrintStream(clientSocket.getOutputStream());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     EmissionThread(PrintStream socOut, String message) {
 
