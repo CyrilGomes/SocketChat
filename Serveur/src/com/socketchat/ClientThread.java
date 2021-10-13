@@ -30,10 +30,20 @@ public class ClientThread
             socIn = new BufferedReader(
                     new InputStreamReader(clientSocket.getInputStream()));
             PrintStream socOut = new PrintStream(clientSocket.getOutputStream());
-            while (true) {
+            Boolean isRunning = true;
+            while (isRunning) {
                 String line = socIn.readLine();
-                System.out.println(line);
-                socOut.println(line);
+                if(line == null){
+                    socIn.close();
+                    socOut.close();
+                    clientSocket.close();
+                    System.out.println("Déconnexion d'un utilisateur");
+                    isRunning = false;
+                }
+                else{
+                    System.out.println(line);
+                    socOut.println(line);
+                }
             }
         } catch (Exception e) {
             System.err.println("Error in EchoServer:" + e);
