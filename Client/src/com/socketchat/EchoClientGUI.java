@@ -6,14 +6,11 @@
 package com.socketchat;
 
 import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatLightLaf;
-import java.awt.Color;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,7 +20,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
@@ -35,7 +31,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
     Socket clientSocket;
     EmissionThread emissionThread;
     RecieveThread recieveThread;
-    
+
     GridBagConstraints chatPanelConstraints;
     DefaultListModel modelListeMessages;
 
@@ -165,6 +161,14 @@ public class EchoClientGUI extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         String msg = jTextArea1.getText();
         System.out.println(msg);
+        PrintWriter test;
+        try {
+            test = new PrintWriter(clientSocket.getOutputStream());
+            test.write(msg);
+            test.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
         addMessage("", new Date(), "");
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -203,7 +207,20 @@ public class EchoClientGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_btConnexionActionPerformed
 
     private void btDeconnexionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btDeconnexionActionPerformed
-        // TODO add your handling code here:
+        final JFrame parent = this;
+        new Thread(() -> {
+            if (clientSocket.isClosed() || clientSocket != null) {
+                try {
+                    clientSocket.close();
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(parent, "Echec de déconnexion", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            else{
+                JOptionPane.showMessageDialog(parent, "Vous n'êtes pas connecté...", "Erreur", JOptionPane.ERROR_MESSAGE);
+            }
+        }).start();
     }//GEN-LAST:event_btDeconnexionActionPerformed
 
     /**
