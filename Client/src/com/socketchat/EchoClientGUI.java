@@ -91,8 +91,9 @@ public class EchoClientGUI extends javax.swing.JFrame {
         jList1 = new javax.swing.JList<>();
         jScrollPane5 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
-        roomTextField = new javax.swing.JTextField();
+        jPanel1 = new javax.swing.JPanel();
         joinRoomBtn = new javax.swing.JButton();
+        roomTextField = new javax.swing.JTextField();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -153,18 +154,29 @@ public class EchoClientGUI extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 0);
         getContentPane().add(jScrollPane5, gridBagConstraints);
 
-        roomTextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        roomTextField.setText("jTextField2");
-        roomTextField.setMinimumSize(new java.awt.Dimension(125, 20));
-        getContentPane().add(roomTextField, new java.awt.GridBagConstraints());
+        jPanel1.setLayout(new java.awt.GridBagLayout());
 
-        joinRoomBtn.setText("Rejoindre");
+        joinRoomBtn.setText("Rejoindre / Créer");
         joinRoomBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 joinRoomBtnActionPerformed(evt);
             }
         });
-        getContentPane().add(joinRoomBtn, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 0);
+        jPanel1.add(joinRoomBtn, gridBagConstraints);
+
+        roomTextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        roomTextField.setMinimumSize(new java.awt.Dimension(125, 20));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 0);
+        jPanel1.add(roomTextField, gridBagConstraints);
+
+        getContentPane().add(jPanel1, new java.awt.GridBagConstraints());
 
         jMenu1.setText("Connexion");
 
@@ -195,29 +207,35 @@ public class EchoClientGUI extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         String msg = jTextArea1.getText();
-        System.out.println(msg);
-        Message message = Message.textMessage(msg, nomUtilisateur, roomName);
-        String serializedMessage = new Gson().toJson(message);
-        emissionThread = new EmissionThread(socOut, serializedMessage);
-        emissionThread.start();
-        System.out.println(serializedMessage);
-
-        //addMessage(nomUtilisateur, new Date(), msg);
+        if (msg.isBlank()) {
+            JOptionPane.showMessageDialog(this, "Veuillez donner un message qui n'est pas vide sinon ça va pas le faire", "Erreur", JOptionPane.ERROR_MESSAGE);
+        } else {
+            Message message = Message.textMessage(msg, nomUtilisateur, roomName);
+            String serializedMessage = new Gson().toJson(message);
+            emissionThread = new EmissionThread(socOut, serializedMessage);
+            emissionThread.start();
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void closeEverything() {
-        try {
-            recieveThread.interrupt();
-            socOut.close();
-            socIn.close();
-            if (clientSocket != null) {
-                clientSocket.close();
+        final JFrame parent = this;
+        new Thread(() -> {
+            if (clientSocket != null && !clientSocket.isClosed()) {
+                try {
+                    clientSocket.close();
+                    recieveThread.interrupt();
+                    socOut.close();
+                    socIn.close();
+                    JOptionPane.showMessageDialog(parent, "Déconnexion réussie", "Déconnexion", JOptionPane.INFORMATION_MESSAGE);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(parent, "Echec de déconnexion", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(parent, "Vous n'êtes pas connecté...", "Erreur", JOptionPane.ERROR_MESSAGE);
             }
-
-        } catch (IOException ex) {
-            //Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+            closeEverything();
+        }).start();
     }
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         closeEverything();
@@ -267,32 +285,25 @@ public class EchoClientGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_btConnexionActionPerformed
 
     private void btDeconnexionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btDeconnexionActionPerformed
-        final JFrame parent = this;
-        new Thread(() -> {
-            if (!clientSocket.isClosed() && clientSocket != null) {
-                try {
-                    clientSocket.close();
-                    JOptionPane.showMessageDialog(parent, "Déconnexion réussie", "Déconnexion", JOptionPane.INFORMATION_MESSAGE);
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(parent, "Echec de déconnexion", "Erreur", JOptionPane.ERROR_MESSAGE);
-                    Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            } else {
-                JOptionPane.showMessageDialog(parent, "Vous n'êtes pas connecté...", "Erreur", JOptionPane.ERROR_MESSAGE);
-            }
-            closeEverything();
-        }).start();
+        closeEverything();
     }//GEN-LAST:event_btDeconnexionActionPerformed
 
     private void joinRoomBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joinRoomBtnActionPerformed
-        clearMessages();
-        roomName = roomTextField.getText();
-        Message message = Message.joinRoomMessage(nomUtilisateur, roomName);
-        String serializedMessage = new Gson().toJson(message);
-        emissionThread = new EmissionThread(socOut, serializedMessage);
-        emissionThread.start();
-        jButton1.setEnabled(true);
-
+        if (clientSocket != null && !clientSocket.isClosed()) {
+            roomName = roomTextField.getText();
+            if (roomName.isBlank()) {
+                JOptionPane.showMessageDialog(this, "Veuillez donner un nom qui n'est pas vide sinon ça va pas le faire", "Erreur", JOptionPane.ERROR_MESSAGE);
+            } else {
+                clearMessages();
+                Message message = Message.joinRoomMessage(nomUtilisateur, roomName);
+                String serializedMessage = new Gson().toJson(message);
+                emissionThread = new EmissionThread(socOut, serializedMessage);
+                emissionThread.start();
+                jButton1.setEnabled(true);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Vous n'êtes pas connecté...", "Erreur", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_joinRoomBtnActionPerformed
 
     /**
@@ -338,6 +349,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTextArea jTextArea1;

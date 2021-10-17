@@ -21,7 +21,7 @@ public class EchoServerMultiThreaded {
     public static Map<String, ClientHandler> clientsMap;
     public static Map<String, Room> rooms;
     public static List<ClientHandler> connectedClients;
-    private static String logFilePath = "./logs.json";
+    private static String logFilePath = "./logs.txt";
 
     /**
      * main method

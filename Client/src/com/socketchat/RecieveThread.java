@@ -56,7 +56,6 @@ public class RecieveThread extends Thread {
                     break;
                 }
                 Gson gson = new Gson();
-                System.out.println(line);
                 JsonObject convertedObject = new Gson().fromJson(line, JsonObject.class);
 
                 Message message = gson.fromJson(convertedObject.get("payload"), Message.class);
