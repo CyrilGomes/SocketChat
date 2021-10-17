@@ -12,24 +12,35 @@ import java.util.Date;
  * @author Cyril
  */
 public class Message implements Serializable {
-    public String content;
-    public String author;
-    public String dest;
-    public Date date;
 
-    public String getDest() {
-        return dest;
+    private String type;
+    private String content;
+    private String author;
+    private String dest;
+    private Date date;
+
+    public String getType() {
+        return type;
     }
 
-    public void setDest(String dest) {
-        this.dest = dest;
-    }
-
-    public Message(String content, String author, Date date, String dest) {
+    private Message(String type, String content, String author, String dest, Date date) {
+        this.type = type;
         this.content = content;
         this.author = author;
-        this.date = date;
         this.dest = dest;
+        this.date = date;
+    }
+
+    public static Message textMessage(String content, String author, String dest) {
+
+        Message message = new Message("MSG", content, author, dest, new Date());
+
+        return message;
+    }
+
+    public static Message joinRoomMessage(String author, String dest) {
+        Message message = new Message("JROM", "", author, dest, new Date());
+        return message;
     }
 
     public String getContent() {
@@ -44,10 +55,6 @@ public class Message implements Serializable {
         return author;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
     public Date getDate() {
         return date;
     }
@@ -55,5 +62,5 @@ public class Message implements Serializable {
     public void setDate(Date date) {
         this.date = date;
     }
-    
+
 }

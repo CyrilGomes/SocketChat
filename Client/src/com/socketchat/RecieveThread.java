@@ -60,7 +60,7 @@ public class RecieveThread extends Thread {
                 JsonObject convertedObject = new Gson().fromJson(line, JsonObject.class);
 
                 Message message = gson.fromJson(convertedObject.get("payload"), Message.class);
-                clientGui.addMessage(message.author, message.date, message.content);
+                clientGui.addMessage(message.getAuthor(), message.getDate(), message.getContent());
             } catch (IOException ex) {
                 //Logger.getLogger(RecieveThread.class.getName()).log(Level.SEVERE, null, ex);
             } 

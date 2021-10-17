@@ -12,10 +12,19 @@ import java.util.Date;
  * @author Cyril
  */
 public class Message implements Serializable {
+    private String type;
     private String content;
     private String author;
     private String dest;
     private Date date;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public String getDest() {
         return dest;
@@ -53,6 +62,11 @@ public class Message implements Serializable {
         this.content = content;
         this.author = author;
         this.date = date;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" + "type=" + type + ", content=" + content + ", author=" + author + ", dest=" + dest + ", date=" + date + '}';
     }
     
 }

@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 public class ClientHandler
         implements Runnable {
 
+    private Room room;
     private String username;
     private Socket clientSocket;
     private BufferedReader socIn;
@@ -30,6 +31,7 @@ public class ClientHandler
     }
 
     public ClientHandler(Socket clientSocket) {
+        room = null;
         this.clientSocket = clientSocket;
         try {
             socIn = new BufferedReader(
@@ -56,15 +58,18 @@ public class ClientHandler
                     socIn.close();
                     socOut.close();
                     clientSocket.close();
+                    room.removeClient(this);
                     System.out.println("Déconnexion d'un utilisateur");
                     isRunning = false;
                 } else {
                     Message recievedMessage = new Gson().fromJson(line, Message.class);
-                    username = recievedMessage.getAuthor();
 
-                    if (EchoServerMultiThreaded.rooms.containsKey(recievedMessage.getDest())) {
-                        Room room = EchoServerMultiThreaded.rooms.get(recievedMessage.getDest());
+                    String type = recievedMessage.getType();
+                    username = recievedMessage.getAuthor();
+                    if (type.equals("MSG")) {
                         room.broadcastMessage(recievedMessage);
+                    } else if (type.equals("JROM")) {
+                        joinRoom(recievedMessage.getDest());
                     }
 
                 }
@@ -72,6 +77,23 @@ public class ClientHandler
         } catch (Exception e) {
             System.err.println("Error in ClientHandler:" + e);
         }
+    }
+
+    synchronized void joinRoom(String roomName) {
+        if (room != null) {
+            room.removeClient(this);
+        }
+        if (EchoServerMultiThreaded.rooms.containsKey(roomName)) {
+
+            room = EchoServerMultiThreaded.rooms.get(roomName);
+            room.addClient(this);
+        } else {
+            Room newRoom = new Room(roomName);
+            newRoom.addClient(this);
+            room = newRoom;
+            EchoServerMultiThreaded.rooms.put(roomName, room);
+        }
+
     }
 
     public void sendResponse(Response response) {

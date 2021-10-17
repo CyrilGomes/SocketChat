@@ -36,6 +36,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
     Socket clientSocket;
     EmissionThread emissionThread;
     RecieveThread recieveThread;
+    String roomName = "";
 
     BufferedReader socIn;
     PrintWriter socOut;
@@ -59,13 +60,18 @@ public class EchoClientGUI extends javax.swing.JFrame {
             System.exit(1);
         }
 
-
-
     }
 
     synchronized public void addMessage(String author, Date timestamp, String content) {
         java.awt.EventQueue.invokeLater(() -> {
             modelListeMessages.addElement("(" + timestamp.toString() + ") " + author + " - " + content);
+            repaint();
+        });
+    }
+
+    synchronized public void clearMessages() {
+        java.awt.EventQueue.invokeLater(() -> {
+            modelListeMessages.clear();
             repaint();
         });
     }
@@ -81,10 +87,12 @@ public class EchoClientGUI extends javax.swing.JFrame {
         java.awt.GridBagConstraints gridBagConstraints;
 
         jButton1 = new javax.swing.JButton();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList<>();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        roomTextField = new javax.swing.JTextField();
+        joinRoomBtn = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -101,6 +109,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jButton1.setText("Envoyer");
+        jButton1.setEnabled(false);
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -112,23 +121,6 @@ public class EchoClientGUI extends javax.swing.JFrame {
         gridBagConstraints.ipadx = 58;
         gridBagConstraints.insets = new java.awt.Insets(6, 5, 0, 6);
         getContentPane().add(jButton1, gridBagConstraints);
-
-        jScrollPane3.setMaximumSize(new java.awt.Dimension(32767, 16));
-
-        jTextArea1.setColumns(20);
-        jTextArea1.setMaximumSize(new java.awt.Dimension(2147483647, 10));
-        jScrollPane3.setViewportView(jTextArea1);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 218;
-        gridBagConstraints.ipady = 40;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 0);
-        getContentPane().add(jScrollPane3, gridBagConstraints);
 
         jScrollPane1.setViewportView(jList1);
 
@@ -143,6 +135,36 @@ public class EchoClientGUI extends javax.swing.JFrame {
         gridBagConstraints.weighty = 3.0;
         gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
         getContentPane().add(jScrollPane1, gridBagConstraints);
+
+        jScrollPane5.setMaximumSize(new java.awt.Dimension(32767, 16));
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setMaximumSize(new java.awt.Dimension(2147483647, 10));
+        jScrollPane5.setViewportView(jTextArea1);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 218;
+        gridBagConstraints.ipady = 40;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 0);
+        getContentPane().add(jScrollPane5, gridBagConstraints);
+
+        roomTextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        roomTextField.setText("jTextField2");
+        roomTextField.setMinimumSize(new java.awt.Dimension(125, 20));
+        getContentPane().add(roomTextField, new java.awt.GridBagConstraints());
+
+        joinRoomBtn.setText("Rejoindre");
+        joinRoomBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                joinRoomBtnActionPerformed(evt);
+            }
+        });
+        getContentPane().add(joinRoomBtn, new java.awt.GridBagConstraints());
 
         jMenu1.setText("Connexion");
 
@@ -174,7 +196,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         String msg = jTextArea1.getText();
         System.out.println(msg);
-        Message message = new Message(msg, nomUtilisateur, new Date(), "Michel");
+        Message message = Message.textMessage(msg, nomUtilisateur, roomName);
         String serializedMessage = new Gson().toJson(message);
         emissionThread = new EmissionThread(socOut, serializedMessage);
         emissionThread.start();
@@ -216,7 +238,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
             int res = JOptionPane.showConfirmDialog(parent, panelDialog, "Entrez les informations de connexion", JOptionPane.OK_CANCEL_OPTION);
             if (res == JOptionPane.OK_OPTION) {
                 try {
-                    if(clientSocket == null || (clientSocket != null && clientSocket.isClosed())){
+                    if (clientSocket == null || (clientSocket != null && clientSocket.isClosed())) {
                         clientSocket = new Socket();
                     }
                     clientSocket.connect(new InetSocketAddress(fieldAdresse.getText(), Integer.parseInt(fieldPort.getText())));
@@ -262,6 +284,17 @@ public class EchoClientGUI extends javax.swing.JFrame {
         }).start();
     }//GEN-LAST:event_btDeconnexionActionPerformed
 
+    private void joinRoomBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joinRoomBtnActionPerformed
+        clearMessages();
+        roomName = roomTextField.getText();
+        Message message = Message.joinRoomMessage(nomUtilisateur, roomName);
+        String serializedMessage = new Gson().toJson(message);
+        emissionThread = new EmissionThread(socOut, serializedMessage);
+        emissionThread.start();
+        jButton1.setEnabled(true);
+
+    }//GEN-LAST:event_joinRoomBtnActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -306,7 +339,9 @@ public class EchoClientGUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JButton joinRoomBtn;
+    private javax.swing.JTextField roomTextField;
     // End of variables declaration//GEN-END:variables
 }
