@@ -12,9 +12,18 @@ import java.util.Date;
  * @author Cyril
  */
 public class Message implements Serializable {
-    public String content;
-    public String author;
-    public Date date;
+    private String content;
+    private String author;
+    private String dest;
+    private Date date;
+
+    public String getDest() {
+        return dest;
+    }
+
+    public void setDest(String dest) {
+        this.dest = dest;
+    }
 
     public String getContent() {
         return content;

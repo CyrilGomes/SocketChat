@@ -14,12 +14,22 @@ import java.util.Date;
 public class Message implements Serializable {
     public String content;
     public String author;
+    public String dest;
     public Date date;
 
-    public Message(String content, String author, Date date) {
+    public String getDest() {
+        return dest;
+    }
+
+    public void setDest(String dest) {
+        this.dest = dest;
+    }
+
+    public Message(String content, String author, Date date, String dest) {
         this.content = content;
         this.author = author;
         this.date = date;
+        this.dest = dest;
     }
 
     public String getContent() {

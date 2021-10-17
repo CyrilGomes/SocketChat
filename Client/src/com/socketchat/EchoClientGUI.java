@@ -174,13 +174,13 @@ public class EchoClientGUI extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         String msg = jTextArea1.getText();
         System.out.println(msg);
-        Message message = new Message(msg, nomUtilisateur, new Date());
+        Message message = new Message(msg, nomUtilisateur, new Date(), "Michel");
         String serializedMessage = new Gson().toJson(message);
         emissionThread = new EmissionThread(socOut, serializedMessage);
         emissionThread.start();
         System.out.println(serializedMessage);
 
-        addMessage(nomUtilisateur, new Date(), msg);
+        //addMessage(nomUtilisateur, new Date(), msg);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void closeEverything() {
