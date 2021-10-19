@@ -3,19 +3,25 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.socketchat;
+package com.multicastclient;
 
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.google.gson.Gson;
+//import com.formdev.flatlaf.FlatDarkLaf;
+import static com.multicastclient.MulticastClient.nomUtilisateur;
+import static com.multicastclient.MulticastClient.port;
 import java.awt.GridBagConstraints;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.MulticastSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Box;
@@ -30,23 +36,19 @@ import javax.swing.JTextField;
  *
  * @author creep
  */
-public class EchoClientGUI extends javax.swing.JFrame {
-
-    String nomUtilisateur;
-    Socket clientSocket;
-    EmissionThread emissionThread;
-    RecieveThread recieveThread;
-    String roomName = "";
-
-    BufferedReader socIn;
-    PrintWriter socOut;
+public class MulticastClientGUI extends javax.swing.JFrame {
+    MulticastSocket clientSocket;
+    ReceiveThreadGUI receiveThread;
     GridBagConstraints chatPanelConstraints;
     DefaultListModel modelListeMessages;
+    int port;
+    InetAddress host;
+    String nomUtilisateur;
 
     /**
      * Creates new form EchoClientGUI
      */
-    public EchoClientGUI() {
+    public MulticastClientGUI() {
         initComponents();
 
         chatPanelConstraints = new GridBagConstraints();
@@ -59,12 +61,11 @@ public class EchoClientGUI extends javax.swing.JFrame {
         if (nomUtilisateur == null) {
             System.exit(1);
         }
-
     }
 
-    synchronized public void addMessage(String author, Date timestamp, String content) {
+    synchronized public void addMessage(String msg) {
         java.awt.EventQueue.invokeLater(() -> {
-            modelListeMessages.addElement("(" + timestamp.toString() + ") " + author + " - " + content);
+            modelListeMessages.addElement(msg);
             repaint();
         });
     }
@@ -91,9 +92,6 @@ public class EchoClientGUI extends javax.swing.JFrame {
         jList1 = new javax.swing.JList<>();
         jScrollPane5 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
-        jPanel1 = new javax.swing.JPanel();
-        joinRoomBtn = new javax.swing.JButton();
-        roomTextField = new javax.swing.JTextField();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -101,7 +99,6 @@ public class EchoClientGUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(450, 300));
-        setPreferredSize(new java.awt.Dimension(250, 382));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -154,30 +151,6 @@ public class EchoClientGUI extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 0);
         getContentPane().add(jScrollPane5, gridBagConstraints);
 
-        jPanel1.setLayout(new java.awt.GridBagLayout());
-
-        joinRoomBtn.setText("Rejoindre / Créer");
-        joinRoomBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                joinRoomBtnActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 0);
-        jPanel1.add(joinRoomBtn, gridBagConstraints);
-
-        roomTextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        roomTextField.setMinimumSize(new java.awt.Dimension(125, 20));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 0);
-        jPanel1.add(roomTextField, gridBagConstraints);
-
-        getContentPane().add(jPanel1, new java.awt.GridBagConstraints());
-
         jMenu1.setText("Connexion");
 
         jMenuItem1.setText("Se connecter");
@@ -210,10 +183,14 @@ public class EchoClientGUI extends javax.swing.JFrame {
         if (msg.isBlank()) {
             JOptionPane.showMessageDialog(this, "Veuillez donner un message qui n'est pas vide sinon ça va pas le faire", "Erreur", JOptionPane.ERROR_MESSAGE);
         } else {
-            Message message = Message.textMessage(msg, nomUtilisateur, roomName);
-            String serializedMessage = new Gson().toJson(message);
-            emissionThread = new EmissionThread(socOut, serializedMessage);
-            emissionThread.start();
+            try {
+                byte[] buf = (nomUtilisateur + "[" + new Date().toString() + "]: " + msg).getBytes();
+                DatagramPacket datagram = new DatagramPacket(buf, buf.length, host, port);
+                clientSocket.send(datagram);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Echec de l'envoi", "Erreur", JOptionPane.ERROR_MESSAGE);
+                Logger.getLogger(MulticastClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -222,19 +199,17 @@ public class EchoClientGUI extends javax.swing.JFrame {
         new Thread(() -> {
             if (clientSocket != null && !clientSocket.isClosed()) {
                 try {
+                    clientSocket.leaveGroup(host);
                     clientSocket.close();
-                    recieveThread.interrupt();
-                    socOut.close();
-                    socIn.close();
+                    jButton1.setEnabled(false);
                     JOptionPane.showMessageDialog(parent, "Déconnexion réussie", "Déconnexion", JOptionPane.INFORMATION_MESSAGE);
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(parent, "Echec de déconnexion", "Erreur", JOptionPane.ERROR_MESSAGE);
-                    Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(MulticastClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else {
                 JOptionPane.showMessageDialog(parent, "Vous n'êtes pas connecté...", "Erreur", JOptionPane.ERROR_MESSAGE);
             }
-            closeEverything();
         }).start();
     }
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
@@ -242,46 +217,39 @@ public class EchoClientGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private void btConnexionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btConnexionActionPerformed
-        final JFrame parent = this;
+        final MulticastClientGUI parent = this;
         new Thread(() -> {
-            JPanel panelDialog = new JPanel();
-            JTextField fieldAdresse = new JTextField(5);
-            JTextField fieldPort = new JTextField(5);
-            panelDialog.add(new JLabel("Adresse:"));
-            panelDialog.add(fieldAdresse);
-            panelDialog.add(Box.createHorizontalStrut(15)); // a spacer
-            panelDialog.add(new JLabel("Port:"));
-            panelDialog.add(fieldPort);
-
-            int res = JOptionPane.showConfirmDialog(parent, panelDialog, "Entrez les informations de connexion", JOptionPane.OK_CANCEL_OPTION);
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    if (clientSocket == null || (clientSocket != null && clientSocket.isClosed())) {
-                        clientSocket = new Socket();
+            try {
+                JPanel panelDialog = new JPanel();
+                JTextField fieldAdresse = new JTextField(5);
+                JTextField fieldPort = new JTextField(5);
+                panelDialog.add(new JLabel("Adresse:"));
+                panelDialog.add(fieldAdresse);
+                panelDialog.add(Box.createHorizontalStrut(15)); // a spacer
+                panelDialog.add(new JLabel("Port:"));
+                panelDialog.add(fieldPort);
+                
+                int res = JOptionPane.showConfirmDialog(parent, panelDialog, "Entrez les informations de connexion", JOptionPane.OK_CANCEL_OPTION);
+                port = Integer.parseInt(fieldPort.getText());
+                host = InetAddress.getByName(fieldAdresse.getText());
+                if (res == JOptionPane.OK_OPTION) {
+                    try {
+                        if (clientSocket == null || (clientSocket != null && clientSocket.isClosed())) {
+                            clientSocket = new MulticastSocket(port);
+                        }
+                        clientSocket.joinGroup(host);
+                        receiveThread = new ReceiveThreadGUI(clientSocket, parent);
+                        receiveThread.start();
+                        JOptionPane.showMessageDialog(parent, "Connexion établie", "Réussite", JOptionPane.INFORMATION_MESSAGE);
+                        jButton1.setEnabled(true);
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(parent, "Echec de connexion", "Erreur", JOptionPane.ERROR_MESSAGE);
+                        Logger.getLogger(MulticastClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    clientSocket.connect(new InetSocketAddress(fieldAdresse.getText(), Integer.parseInt(fieldPort.getText())));
-                    JOptionPane.showMessageDialog(parent, "Connexion établie", "Réussite", JOptionPane.INFORMATION_MESSAGE);
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(parent, "Echec de connexion", "Erreur", JOptionPane.ERROR_MESSAGE);
-                    Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }
-
-            try {
-                socOut = new PrintWriter(clientSocket.getOutputStream());
-
-            } catch (IOException ex) {
+            } catch (UnknownHostException ex) {
                 JOptionPane.showMessageDialog(parent, "Echec de connexion", "Erreur", JOptionPane.ERROR_MESSAGE);
-                Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-            try {
-                socIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                recieveThread = new RecieveThread(socIn, this);
-                recieveThread.start();
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(parent, "Echec de connexion", "Erreur", JOptionPane.ERROR_MESSAGE);
-                Logger.getLogger(EchoClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(MulticastClientGUI.class.getName()).log(Level.SEVERE, null, ex);
             }
         }).start();
     }//GEN-LAST:event_btConnexionActionPerformed
@@ -289,24 +257,6 @@ public class EchoClientGUI extends javax.swing.JFrame {
     private void btDeconnexionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btDeconnexionActionPerformed
         closeEverything();
     }//GEN-LAST:event_btDeconnexionActionPerformed
-
-    private void joinRoomBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joinRoomBtnActionPerformed
-        if (clientSocket != null && !clientSocket.isClosed()) {
-            roomName = roomTextField.getText();
-            if (roomName.isBlank()) {
-                JOptionPane.showMessageDialog(this, "Veuillez donner un nom qui n'est pas vide sinon ça va pas le faire", "Erreur", JOptionPane.ERROR_MESSAGE);
-            } else {
-                clearMessages();
-                Message message = Message.joinRoomMessage(nomUtilisateur, roomName);
-                String serializedMessage = new Gson().toJson(message);
-                emissionThread = new EmissionThread(socOut, serializedMessage);
-                emissionThread.start();
-                jButton1.setEnabled(true);
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Vous n'êtes pas connecté...", "Erreur", JOptionPane.ERROR_MESSAGE);
-        }
-    }//GEN-LAST:event_joinRoomBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -325,21 +275,22 @@ public class EchoClientGUI extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(EchoClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MulticastClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(EchoClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MulticastClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(EchoClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MulticastClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(EchoClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MulticastClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                FlatDarkLaf.setup();
-                new EchoClientGUI().setVisible(true);
+                //FlatDarkLaf.setup();
+                new MulticastClientGUI().setVisible(true);
             }
         });
     }
@@ -351,11 +302,8 @@ public class EchoClientGUI extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JButton joinRoomBtn;
-    private javax.swing.JTextField roomTextField;
     // End of variables declaration//GEN-END:variables
 }

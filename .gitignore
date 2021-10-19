@@ -39,3 +39,4 @@ dist/
 nbdist/
 .nb-gradle/
 Client/Client.iml
+/MulticastClient/target/

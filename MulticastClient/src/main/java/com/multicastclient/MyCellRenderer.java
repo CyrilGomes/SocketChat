@@ -1,4 +1,4 @@
-package com.socketchat;
+package com.multicastclient;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
