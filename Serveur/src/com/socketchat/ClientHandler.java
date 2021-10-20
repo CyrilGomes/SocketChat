@@ -59,7 +59,7 @@ public class ClientHandler
                     socOut.close();
                     clientSocket.close();
                     room.removeClient(this);
-                    System.out.println("Déconnexion d'un utilisateur");
+                    //System.out.println("Déconnexion d'un utilisateur");
                     isRunning = false;
                 } else {
                     Message recievedMessage = new Gson().fromJson(line, Message.class);
@@ -69,6 +69,9 @@ public class ClientHandler
                     if (type.equals("MSG")) {
                         room.broadcastMessage(recievedMessage);
                     } else if (type.equals("JROM")) {
+                        joinRoom(recievedMessage.getDest());
+                    }
+                    else if (type.equals("JCLI")) {
                         joinRoom(recievedMessage.getDest());
                     }
 

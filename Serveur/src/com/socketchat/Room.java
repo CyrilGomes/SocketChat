@@ -41,7 +41,7 @@ public class Room implements Serializable {
     }
 
     public void addClient(ClientHandler clientHandler) {
-        System.out.println(toString());
+        //System.out.println(toString());
         roomClients.add(clientHandler);
         for (Message m : historic) {
             Response response = new Response("501", m);

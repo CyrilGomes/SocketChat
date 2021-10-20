@@ -31,10 +31,10 @@ public class EchoServerMultiThreaded {
      *
      */
     public static void saveRooms() throws IOException {
+        //System.out.println("SAVING");
 
         File yourFile = new File(logFilePath);
         yourFile.createNewFile();
-        System.out.println("SAVINGS");
         FileOutputStream file = new FileOutputStream(logFilePath);
         ObjectOutputStream out = new ObjectOutputStream(file);
 
@@ -57,11 +57,6 @@ public class EchoServerMultiThreaded {
 
         in.close();
         file.close();
-        for (Map.Entry<String, Room> entry : rooms.entrySet()) {
-            String key = entry.getKey();
-            Room value = entry.getValue();
-            System.out.println(key + " " + value.toString());
-        }
 
     }
 
@@ -86,6 +81,7 @@ public class EchoServerMultiThreaded {
             Logger.getLogger(EchoServerMultiThreaded.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+
         ServerSocket listenSocket;
         connectedClients = new ArrayList<>();
         clientsMap = new HashMap<>();
@@ -94,12 +90,12 @@ public class EchoServerMultiThreaded {
         }
 
         if (args.length != 1) {
-            System.out.println("Usage: java EchoServer <EchoServer port>");
+            //System.out.println("Usage: java EchoServer <EchoServer port>");
             System.exit(1);
         }
         try {
             listenSocket = new ServerSocket(Integer.parseInt(args[0])); //port
-            System.out.println("Server ready...");
+            //System.out.println("Server ready...");
             while (true) {
                 Socket clientSocket = listenSocket.accept();
                 System.out.println("Connexion from:" + clientSocket.getInetAddress());
@@ -109,7 +105,7 @@ public class EchoServerMultiThreaded {
                 ct.start();
             }
         } catch (Exception e) {
-            System.err.println("Error in EchoServer:" + e);
+            //System.err.println("Error in EchoServer:" + e);
         }
     }
 }

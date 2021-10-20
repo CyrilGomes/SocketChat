@@ -37,6 +37,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
     EmissionThread emissionThread;
     RecieveThread recieveThread;
     String roomName = "";
+    String destUsername = "";
 
     BufferedReader socIn;
     PrintWriter socOut;
@@ -93,6 +94,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
         jTextArea1 = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
         joinRoomBtn = new javax.swing.JButton();
+        roomTextField2 = new javax.swing.JTextField();
         roomTextField = new javax.swing.JTextField();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
@@ -168,15 +170,19 @@ public class EchoClientGUI extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 0);
         jPanel1.add(joinRoomBtn, gridBagConstraints);
 
-        roomTextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        roomTextField.setMinimumSize(new java.awt.Dimension(125, 20));
+        roomTextField2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        roomTextField2.setMinimumSize(new java.awt.Dimension(125, 20));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 0);
-        jPanel1.add(roomTextField, gridBagConstraints);
+        jPanel1.add(roomTextField2, gridBagConstraints);
 
         getContentPane().add(jPanel1, new java.awt.GridBagConstraints());
+
+        roomTextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        roomTextField.setMinimumSize(new java.awt.Dimension(125, 20));
+        getContentPane().add(roomTextField, new java.awt.GridBagConstraints());
 
         jMenu1.setText("Connexion");
 
@@ -292,16 +298,28 @@ public class EchoClientGUI extends javax.swing.JFrame {
     private void joinRoomBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joinRoomBtnActionPerformed
         if (clientSocket != null && !clientSocket.isClosed()) {
             roomName = roomTextField.getText();
+            destUsername = roomTextField2.getText();
             if (roomName.isBlank()) {
-                JOptionPane.showMessageDialog(this, "Veuillez donner un nom qui n'est pas vide sinon ça va pas le faire", "Erreur", JOptionPane.ERROR_MESSAGE);
-            } else {
-                clearMessages();
-                Message message = Message.joinRoomMessage(nomUtilisateur, roomName);
-                String serializedMessage = new Gson().toJson(message);
-                emissionThread = new EmissionThread(socOut, serializedMessage);
-                emissionThread.start();
-                jButton1.setEnabled(true);
+                if (destUsername.isBlank()) {
+                    JOptionPane.showMessageDialog(this, "Veuillez donner un nom qui n'est pas vide sinon ça va pas le faire", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                String concatenated;
+                if (destUsername.compareTo(nomUtilisateur) < 0) {
+                    concatenated = nomUtilisateur + destUsername;
+                } else {
+                    concatenated = destUsername + nomUtilisateur;
+                }
+
+                roomName = String.valueOf(concatenated.hashCode());
             }
+            clearMessages();
+            Message message = Message.joinRoomMessage(nomUtilisateur, roomName);
+            String serializedMessage = new Gson().toJson(message);
+            emissionThread = new EmissionThread(socOut, serializedMessage);
+            emissionThread.start();
+            jButton1.setEnabled(true);
+            
         } else {
             JOptionPane.showMessageDialog(this, "Vous n'êtes pas connecté...", "Erreur", JOptionPane.ERROR_MESSAGE);
         }
@@ -356,5 +374,6 @@ public class EchoClientGUI extends javax.swing.JFrame {
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JButton joinRoomBtn;
     private javax.swing.JTextField roomTextField;
+    private javax.swing.JTextField roomTextField2;
     // End of variables declaration//GEN-END:variables
 }
