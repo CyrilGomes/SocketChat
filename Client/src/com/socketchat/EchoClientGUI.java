@@ -94,8 +94,10 @@ public class EchoClientGUI extends javax.swing.JFrame {
         jTextArea1 = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
         joinRoomBtn = new javax.swing.JButton();
-        roomTextField2 = new javax.swing.JTextField();
+        usernameTextField = new javax.swing.JTextField();
         roomTextField = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -120,7 +122,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.ipadx = 58;
         gridBagConstraints.insets = new java.awt.Insets(6, 5, 0, 6);
         getContentPane().add(jButton1, gridBagConstraints);
@@ -129,7 +131,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = 218;
         gridBagConstraints.ipady = 126;
@@ -147,7 +149,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipadx = 218;
         gridBagConstraints.ipady = 40;
@@ -165,24 +167,60 @@ public class EchoClientGUI extends javax.swing.JFrame {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
         jPanel1.add(joinRoomBtn, gridBagConstraints);
 
-        roomTextField2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        roomTextField2.setMinimumSize(new java.awt.Dimension(125, 20));
+        usernameTextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        usernameTextField.setMinimumSize(new java.awt.Dimension(125, 20));
+        usernameTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                usernameTextFieldKeyTyped(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 0);
-        jPanel1.add(roomTextField2, gridBagConstraints);
-
-        getContentPane().add(jPanel1, new java.awt.GridBagConstraints());
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
+        jPanel1.add(usernameTextField, gridBagConstraints);
 
         roomTextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         roomTextField.setMinimumSize(new java.awt.Dimension(125, 20));
-        getContentPane().add(roomTextField, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
+        jPanel1.add(roomTextField, gridBagConstraints);
+
+        jLabel1.setText("Nom utilisateur");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 5, 10);
+        jPanel1.add(jLabel1, gridBagConstraints);
+
+        jLabel2.setText("Room name");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 5, 10);
+        jPanel1.add(jLabel2, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        getContentPane().add(jPanel1, gridBagConstraints);
 
         jMenu1.setText("Connexion");
 
@@ -298,7 +336,10 @@ public class EchoClientGUI extends javax.swing.JFrame {
     private void joinRoomBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joinRoomBtnActionPerformed
         if (clientSocket != null && !clientSocket.isClosed()) {
             roomName = roomTextField.getText();
-            destUsername = roomTextField2.getText();
+            destUsername = usernameTextField.getText();
+            if(!destUsername.isBlank() && !roomName.isBlank()){
+                JOptionPane.showMessageDialog(this, "Vous avez donné un nom d'utilisateur donc ça ne va pas le faire", "Erreur", JOptionPane.ERROR_MESSAGE);
+            }
             if (roomName.isBlank()) {
                 if (destUsername.isBlank()) {
                     JOptionPane.showMessageDialog(this, "Veuillez donner un nom qui n'est pas vide sinon ça va pas le faire", "Erreur", JOptionPane.ERROR_MESSAGE);
@@ -324,6 +365,17 @@ public class EchoClientGUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Vous n'êtes pas connecté...", "Erreur", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_joinRoomBtnActionPerformed
+
+    private void usernameTextFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_usernameTextFieldKeyTyped
+        System.out.println(usernameTextField.getText());
+        if(!usernameTextField.getText().isBlank()){
+            roomTextField.setEnabled(false);
+            roomTextField.setText("");
+        }
+        else{
+            roomTextField.setEnabled(true);
+        }
+    }//GEN-LAST:event_usernameTextFieldKeyTyped
 
     /**
      * @param args the command line arguments
@@ -363,6 +415,8 @@ public class EchoClientGUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JList<String> jList1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
@@ -374,6 +428,6 @@ public class EchoClientGUI extends javax.swing.JFrame {
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JButton joinRoomBtn;
     private javax.swing.JTextField roomTextField;
-    private javax.swing.JTextField roomTextField2;
+    private javax.swing.JTextField usernameTextField;
     // End of variables declaration//GEN-END:variables
 }
