@@ -234,7 +234,6 @@ public class EchoClientGUI extends javax.swing.JFrame {
             } else {
                 JOptionPane.showMessageDialog(parent, "Vous n'êtes pas connecté...", "Erreur", JOptionPane.ERROR_MESSAGE);
             }
-            closeEverything();
         }).start();
     }
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
