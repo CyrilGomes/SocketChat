@@ -334,25 +334,27 @@ public class EchoClientGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_btDeconnexionActionPerformed
 
     private void joinRoomBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joinRoomBtnActionPerformed
-        if (clientSocket != null && !clientSocket.isClosed()) {
+        if (clientSocket != null && !clientSocket.isClosed()) { // le client est connecté
             roomName = roomTextField.getText();
             destUsername = usernameTextField.getText();
-            if(!destUsername.isBlank() && !roomName.isBlank()){
+            if(!destUsername.isBlank() && !roomName.isBlank()){ // on ne peut pas rejoindre un salon et un utilisateur à la fois
                 JOptionPane.showMessageDialog(this, "Vous avez donné un nom d'utilisateur donc ça ne va pas le faire", "Erreur", JOptionPane.ERROR_MESSAGE);
             }
-            if (roomName.isBlank()) {
+            if (roomName.isBlank()) { // contacte l'utilisateur
                 if (destUsername.isBlank()) {
                     JOptionPane.showMessageDialog(this, "Veuillez donner un nom qui n'est pas vide sinon ça va pas le faire", "Erreur", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 String concatenated;
+                
+                //trie alphabétique des noms, pour un hash unique des 2 cotés
                 if (destUsername.compareTo(nomUtilisateur) < 0) {
-                    concatenated = nomUtilisateur + destUsername;
+                    concatenated = nomUtilisateur + destUsername; 
                 } else {
                     concatenated = destUsername + nomUtilisateur;
                 }
 
-                roomName = String.valueOf(concatenated.hashCode());
+                roomName = String.valueOf(concatenated.hashCode()); // change le roomName avec le hash crée
             }
             clearMessages();
             Message message = Message.joinRoomMessage(nomUtilisateur, roomName);
@@ -361,7 +363,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
             emissionThread.start();
             jButton1.setEnabled(true);
             
-        } else {
+        } else { // le client n'est pas connecté
             JOptionPane.showMessageDialog(this, "Vous n'êtes pas connecté...", "Erreur", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_joinRoomBtnActionPerformed

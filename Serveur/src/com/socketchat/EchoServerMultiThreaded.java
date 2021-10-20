@@ -18,17 +18,18 @@ import java.util.logging.Logger;
 
 public class EchoServerMultiThreaded {
 
-    public static Map<String, ClientHandler> clientsMap;
+    //liste des salons
     public static Map<String, Room> rooms;
+
+    //liste de tous les clients connectés
     public static List<ClientHandler> connectedClients;
+
+    //le chemin du ficher de sauvegarde de l'historique des salons
     private static String logFilePath = "./logs.txt";
 
     /**
-     * main method
-     *
-     * @param EchoServer port
-     *
-     *
+     * sauvegarde l'historique des conversations des salons
+     * @throws IOException
      */
     public static void saveRooms() throws IOException {
         //System.out.println("SAVING");
@@ -44,7 +45,11 @@ public class EchoServerMultiThreaded {
         file.close();
 
     }
-
+    
+    /**
+     * restaure l'historique des conversations des salons
+     * @throws IOException
+     */
     public static void restoreRooms() throws IOException {
         FileInputStream file = new FileInputStream(logFilePath);
         ObjectInputStream in = new ObjectInputStream(file);
@@ -60,7 +65,16 @@ public class EchoServerMultiThreaded {
 
     }
 
+    /**
+     * main method
+     *
+     * @param EchoServerMultiThreaded port
+     *
+     *
+     */
     public static void main(String args[]) {
+        
+        //ajoute une sorte d'evenement qui détecte la fin du serveur, appelle la sauvegarde de l'historique
         Runtime.getRuntime().addShutdownHook(new Thread() {
 
             @Override
@@ -81,10 +95,8 @@ public class EchoServerMultiThreaded {
             Logger.getLogger(EchoServerMultiThreaded.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-
         ServerSocket listenSocket;
         connectedClients = new ArrayList<>();
-        clientsMap = new HashMap<>();
         if (rooms == null) {
             rooms = new HashMap<>();
         }
@@ -96,10 +108,11 @@ public class EchoServerMultiThreaded {
         try {
             listenSocket = new ServerSocket(Integer.parseInt(args[0])); //port
             //System.out.println("Server ready...");
+            
             while (true) {
                 Socket clientSocket = listenSocket.accept();
                 System.out.println("Connexion from:" + clientSocket.getInetAddress());
-                ClientHandler currClient = new ClientHandler(clientSocket);
+                ClientHandler currClient = new ClientHandler(clientSocket); //Thread qui gère le client connecté
                 connectedClients.add(currClient);
                 Thread ct = new Thread(currClient);
                 ct.start();

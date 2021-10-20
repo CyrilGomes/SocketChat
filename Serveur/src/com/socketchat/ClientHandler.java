@@ -43,9 +43,7 @@ public class ClientHandler
     }
 
     /**
-     * receives a request from client then sends an echo to the client
-     *
-     * @param clientSocket the client socket
+     * logique de réception de message, et de choix de salon
      *
      */
     public void run() {
@@ -86,11 +84,10 @@ public class ClientHandler
         if (room != null) {
             room.removeClient(this);
         }
-        if (EchoServerMultiThreaded.rooms.containsKey(roomName)) {
-
+        if (EchoServerMultiThreaded.rooms.containsKey(roomName)) { //si le salon existe déja, on place le client à l'interieur
             room = EchoServerMultiThreaded.rooms.get(roomName);
             room.addClient(this);
-        } else {
+        } else { //sinon on créer un nouveau salon, et on le place dedans
             Room newRoom = new Room(roomName);
             newRoom.addClient(this);
             room = newRoom;
@@ -99,6 +96,10 @@ public class ClientHandler
 
     }
 
+    /**
+     *  sérialize la réponse et l'envoie au client
+     * @param response
+     */
     public void sendResponse(Response response) {
         String serializedResponse = new Gson().toJson(response);
         EmissionThread emissionThread = new EmissionThread(socOut, serializedResponse);

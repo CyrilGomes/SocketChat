@@ -31,6 +31,13 @@ public class Message implements Serializable {
         this.date = date;
     }
 
+    /**
+     * création d'un message textuel classique
+     * @param content
+     * @param author
+     * @param dest
+     * @return le message
+     */
     public static Message textMessage(String content, String author, String dest) {
 
         Message message = new Message("MSG", content, author, dest, new Date());
@@ -38,6 +45,12 @@ public class Message implements Serializable {
         return message;
     }
 
+    /**
+     * création d'un message pour rejoindre un salon
+     * @param author
+     * @param dest
+     * @return le message
+     */
     public static Message joinRoomMessage(String author, String dest) {
         Message message = new Message("JROM", "", author, dest, new Date());
         return message;

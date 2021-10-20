@@ -39,9 +39,7 @@ public class RecieveThread extends Thread {
     }
 
     /**
-     * receives a request from client then sends an echo to the client
-     *
-     * @param recieveSocket the client socket
+     * logique de réception des messages avec désérialsation
      *
      */
     public void run() {

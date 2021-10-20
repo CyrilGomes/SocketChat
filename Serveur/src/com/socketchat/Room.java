@@ -29,6 +29,8 @@ public class Room implements Serializable {
         return historic;
     }
 
+    
+    //permet de créer une array list lors de la désérialization
     private Object readResolve() {
         this.roomClients = new ArrayList<>();
         return this;
@@ -40,6 +42,10 @@ public class Room implements Serializable {
         historic = new ArrayList<>();
     }
 
+    /**
+     *  ajoute le client dans le salon
+     * @param clientHandler
+     */
     public void addClient(ClientHandler clientHandler) {
         //System.out.println(toString());
         roomClients.add(clientHandler);
@@ -49,10 +55,18 @@ public class Room implements Serializable {
         }
     }
 
+    /**
+     *  enleve le client du salon
+     * @param client
+     */
     public void removeClient(ClientHandler client) {
         roomClients.remove(client);
     }
 
+    /**
+     * envoie un message à tous les clients connecté au salon
+     * @param message
+     */
     public void broadcastMessage(Message message) {
         historic.add(message);
         Response response = new Response("501", message);

@@ -36,12 +36,6 @@ public class EmissionThread extends Thread {
         }
     }
 
-    /**
-     * receives a request from client then sends an echo to the client
-     *
-     * @param emissionSocket the client socket
-     *
-     */
     public void run() {
         socOut.println(message);
         socOut.flush();
