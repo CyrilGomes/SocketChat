@@ -14,8 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author Cyril
+ * Thread se chargeant d'envoyer des messages à un client
  */
 public class EmissionThread extends Thread {
 

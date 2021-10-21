@@ -8,8 +8,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- *
- * @author Cyril
+ * Informations d'un message
  */
 public class Message implements Serializable {
 
@@ -19,6 +18,10 @@ public class Message implements Serializable {
     private String dest;
     private Date date;
 
+    /**
+     * 
+     * @return Type du message
+     */
     public String getType() {
         return type;
     }
@@ -33,9 +36,9 @@ public class Message implements Serializable {
 
     /**
      * création d'un message textuel classique
-     * @param content
-     * @param author
-     * @param dest
+     * @param content Contenu du message
+     * @param author Auteur du message
+     * @param dest Destinataire du message
      * @return le message
      */
     public static Message textMessage(String content, String author, String dest) {
@@ -47,8 +50,8 @@ public class Message implements Serializable {
 
     /**
      * création d'un message pour rejoindre un salon
-     * @param author
-     * @param dest
+     * @param author Auteur du message
+     * @param dest Destinataire du message
      * @return le message
      */
     public static Message joinRoomMessage(String author, String dest) {
@@ -56,14 +59,26 @@ public class Message implements Serializable {
         return message;
     }
 
+    /**
+     * 
+     * @return Contenu du message
+     */
     public String getContent() {
         return content;
     }
 
+    /**
+     * 
+     * @param content Contenu du message 
+     */
     public void setContent(String content) {
         this.content = content;
     }
 
+    /**
+     * 
+     * @return Auteur du message 
+     */
     public String getAuthor() {
         return author;
     }

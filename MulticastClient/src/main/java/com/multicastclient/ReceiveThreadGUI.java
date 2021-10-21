@@ -13,8 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author creep
+ * Classe de gestion du thread d'écoute des messages sur le multicast
  */
 public class ReceiveThreadGUI extends Thread {
     private final MulticastSocket socket;

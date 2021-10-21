@@ -16,15 +16,24 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Classe d'exécution principale du serveur
+ */
 public class EchoServerMultiThreaded {
 
-    //liste des salons
+    /**
+     * Liste des salons
+    */
     public static Map<String, Room> rooms;
 
-    //liste de tous les clients connectés
+    /**
+     * Liste des threads actifs associés aux clients connectés
+     */
     public static List<ClientHandler> connectedClients;
 
-    //le chemin du ficher de sauvegarde de l'historique des salons
+    /**
+     * Chemin du fichier log où l'historique sera enregistré
+     */
     private static String logFilePath = "./logs.txt";
 
     /**
@@ -67,10 +76,6 @@ public class EchoServerMultiThreaded {
 
     /**
      * main method
-     *
-     * @param EchoServerMultiThreaded port
-     *
-     *
      */
     public static void main(String args[]) {
         

@@ -14,8 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author Cyril
+ * Classe de gestion du thread d'envoi de messages au serveur
  */
 public class EmissionThread extends Thread {
 

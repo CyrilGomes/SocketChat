@@ -7,13 +7,24 @@ package com.socketchat;
 import java.io.Serializable;
 
 /**
- *
- * @author Cyril
+ * Informations d'une réponse
  */
 public class Response {
+    /**
+     * Description du statut à communiquer
+     */
     public String status;
+    
+    /**
+     * Données à transmettre
+     */
     public Serializable payload;
 
+    /**
+     * 
+     * @param status Description du statut à communiquer
+     * @param payload Données à transmettre
+     */
     public Response(String status, Serializable payload) {
         this.status = status;
         this.payload = payload;

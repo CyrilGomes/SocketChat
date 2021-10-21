@@ -19,8 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author Cyril
+ * Classe de gestion du thread de réception des messages du serveur
  */
 public class RecieveThread extends Thread {
 

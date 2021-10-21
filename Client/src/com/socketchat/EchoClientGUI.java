@@ -27,8 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 /**
- *
- * @author creep
+ * Classe d'exécution principale et de gestion de l'interface du programme
  */
 public class EchoClientGUI extends javax.swing.JFrame {
 
@@ -63,6 +62,12 @@ public class EchoClientGUI extends javax.swing.JFrame {
 
     }
 
+    /**
+     * Ajoute un message dans l'interface de chat du programme
+     * @param author Auteur du message
+     * @param timestamp Date de génération du message
+     * @param content Contenu du message
+     */
     synchronized public void addMessage(String author, Date timestamp, String content) {
         java.awt.EventQueue.invokeLater(() -> {
             modelListeMessages.addElement("(" + timestamp.toString() + ") " + author + " - " + content);
@@ -70,6 +75,9 @@ public class EchoClientGUI extends javax.swing.JFrame {
         });
     }
 
+    /**
+     * Vide l'interface de chat du programme de ses messages
+     */
     synchronized public void clearMessages() {
         java.awt.EventQueue.invokeLater(() -> {
             modelListeMessages.clear();
@@ -347,7 +355,7 @@ public class EchoClientGUI extends javax.swing.JFrame {
                 }
                 String concatenated;
                 
-                //trie alphabétique des noms, pour un hash unique des 2 cotés
+                //tri alphabétique des noms, pour un hash unique des 2 cotés
                 if (destUsername.compareTo(nomUtilisateur) < 0) {
                     concatenated = nomUtilisateur + destUsername; 
                 } else {

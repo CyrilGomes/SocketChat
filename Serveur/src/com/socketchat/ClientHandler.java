@@ -13,8 +13,10 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ClientHandler
-        implements Runnable {
+/**
+ * Classe et thread de gestion d'un utilisateur connecté au serveur
+ */
+public class ClientHandler implements Runnable {
 
     private Room room;
     private String username;
@@ -22,14 +24,26 @@ public class ClientHandler
     private BufferedReader socIn;
     private PrintWriter socOut;
 
+    /**
+     * 
+     * @return Nom de l'utilisateur
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * 
+     * @param username Nom de l'utilisateur
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
+    /**
+     * 
+     * @param clientSocket Socket utilisé pour communiquer avec le client
+     */
     public ClientHandler(Socket clientSocket) {
         room = null;
         this.clientSocket = clientSocket;
@@ -97,8 +111,8 @@ public class ClientHandler
     }
 
     /**
-     *  sérialize la réponse et l'envoie au client
-     * @param response
+     * Sérialise la réponse et l'envoie au client
+     * @param response Réponse à envoyer au client
      */
     public void sendResponse(Response response) {
         String serializedResponse = new Gson().toJson(response);

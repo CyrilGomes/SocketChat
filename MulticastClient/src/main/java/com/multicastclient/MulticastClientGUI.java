@@ -6,8 +6,6 @@
 package com.multicastclient;
 
 //import com.formdev.flatlaf.FlatDarkLaf;
-import static com.multicastclient.MulticastClient.nomUtilisateur;
-import static com.multicastclient.MulticastClient.port;
 import java.awt.GridBagConstraints;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,8 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 /**
- *
- * @author creep
+ * Classe d'exécution principale et de gestion de l'interface du programme
  */
 public class MulticastClientGUI extends javax.swing.JFrame {
     MulticastSocket clientSocket;
@@ -63,6 +60,10 @@ public class MulticastClientGUI extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Ajoute un message à l'interface de chat du programme
+     * @param msg Message à ajouter
+     */
     synchronized public void addMessage(String msg) {
         java.awt.EventQueue.invokeLater(() -> {
             modelListeMessages.addElement(msg);
@@ -70,6 +71,9 @@ public class MulticastClientGUI extends javax.swing.JFrame {
         });
     }
 
+    /**
+     * Supprime les messages affichés sur l'interface du programme
+     */
     synchronized public void clearMessages() {
         java.awt.EventQueue.invokeLater(() -> {
             modelListeMessages.clear();

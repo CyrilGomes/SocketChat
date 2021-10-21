@@ -12,30 +12,53 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
- * @author Cyril
+ * Classe de gestion d'un salon de discussion
  */
 public class Room implements Serializable {
-
+    /**
+     * Liste des threads correspondants aux clients connectés au salon
+     */
     private transient List<ClientHandler> roomClients;
+    
+    /**
+     * Nom du salon
+     */
     private String roomName;
+    
+    /**
+     * Liste des messages envoyés dans le salon
+     */
     private List<Message> historic;
 
+    /**
+     * 
+     * @return Nom du salon
+     */
     public String getRoomName() {
         return roomName;
     }
 
+    /**
+     * 
+     * @return Liste des messages du salon
+     */
     public List<Message> getHistoric() {
         return historic;
     }
 
-    
-    //permet de créer une array list lors de la désérialization
+    /**
+     * permet de créer une array list lors de la désérialization
+     * @return Un array list
+    */
     private Object readResolve() {
         this.roomClients = new ArrayList<>();
         return this;
     }
 
+    /**
+     * 
+     * @param roomName Nom du salon
+     */
     public Room(String roomName) {
         this.roomName = roomName;
         roomClients = new ArrayList<>();
@@ -44,7 +67,7 @@ public class Room implements Serializable {
 
     /**
      *  ajoute le client dans le salon
-     * @param clientHandler
+     * @param clientHandler Thread du client à ajouter
      */
     public void addClient(ClientHandler clientHandler) {
         //System.out.println(toString());
@@ -57,7 +80,7 @@ public class Room implements Serializable {
 
     /**
      *  enleve le client du salon
-     * @param client
+     * @param client Thread du client à enlever
      */
     public void removeClient(ClientHandler client) {
         roomClients.remove(client);
@@ -65,7 +88,7 @@ public class Room implements Serializable {
 
     /**
      * envoie un message à tous les clients connecté au salon
-     * @param message
+     * @param message Message à envoyer
      */
     public void broadcastMessage(Message message) {
         historic.add(message);
