@@ -76,7 +76,7 @@ public class ClientHandler
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error in ClientHandler:" + e);
+            //System.err.println("Error in ClientHandler:" + e);
         }
     }
 

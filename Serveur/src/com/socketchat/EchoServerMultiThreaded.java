@@ -111,7 +111,7 @@ public class EchoServerMultiThreaded {
             
             while (true) {
                 Socket clientSocket = listenSocket.accept();
-                System.out.println("Connexion from:" + clientSocket.getInetAddress());
+                //System.out.println("Connexion from:" + clientSocket.getInetAddress());
                 ClientHandler currClient = new ClientHandler(clientSocket); //Thread qui gère le client connecté
                 connectedClients.add(currClient);
                 Thread ct = new Thread(currClient);
